@@ -40,8 +40,8 @@ export default function LoginPage() {
 
   const formik = useFormik({
     initialValues: {
-      enrollment: '',
-      password: '',
+      enrollment: '00715602721',
+      password: 'password',
     },
 
 

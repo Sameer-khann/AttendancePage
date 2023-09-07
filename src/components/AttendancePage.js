@@ -9,7 +9,7 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 
 const validationSchema = yup.object().shape({
-  Subject1name: yup.string().required('Atleast one subject is required'),
+  Subject1name: yup.string(),
   Subject2name: yup.string(),
   Subject3name: yup.string(),
   Subject4name: yup.string(),
@@ -17,127 +17,43 @@ const validationSchema = yup.object().shape({
   Subject6name: yup.string(),
 });
 
-const FormComponent = (props) => {
-
-  const [addData, setAddData] = useState({
-    Subject1name: '',
-    Subject2name: '',
-    Subject3name: '',
-    Subject4name: '',
-    Subject5name: '',
-    Subject6name: '',
-  });
+const FormComponent = ({ subjects, userData, onSubmit }) => {
 
   const formik = useFormik({
     initialValues: {
-      Subject1name: '',
-      Subject2name: '',
-      Subject3name: '',
-      Subject4name: '',
-      Subject5name: '',
-      Subject6name: '',
+      Subject1name: subjects[0].name,
+      Subject2name: subjects[1].name,
+      Subject3name: subjects[2].name,
+      Subject4name: subjects[3].name,
+      Subject5name: subjects[4].name,
+      Subject6name: subjects[5].name,
     },
-
     validationSchema: validationSchema,
-
     onSubmit: (values) => {
-
-      setAddData(values)
-      console.log('Form values on submit:', values);
-      console.log(addData, "this is addData")
-
-      props.onSubmit(values);
-      alert("succesfully submited");
-      formik.resetForm();
+      onSubmit(values);
     },
   });
-
-
-  const handleInputChange = (event) => {
-
-  };
 
   return (
     <div className="formAdd">
       <form onSubmit={formik.handleSubmit}>
-        <input
-          type="text"
-          placeholder="Subject1 Name"
-          name="Subject1name"
-          value={formik.values.name}
-          onChange={(e) => {
-            formik.handleChange(e);
-            handleInputChange(e);
-          }}
-          onBlur={formik.handleBlur}
-        />
-        <div className='errorFormAdd'>{formik.touched.name && formik.errors.name}</div>
-
-        <input
-          type="text"
-          placeholder="Subject2 Name"
-          name="Subject2name"
-          value={formik.values.name}
-          onChange={(e) => {
-            formik.handleChange(e);
-            handleInputChange(e);
-          }}
-          onBlur={formik.handleBlur}
-        />
-        <div className='errorFormAdd'>{formik.touched.name && formik.errors.name}</div>
-
-        <input
-          type="text"
-          placeholder="Subject3 Name"
-          name="Subject3name"
-          value={formik.values.name}
-          onChange={(e) => {
-            formik.handleChange(e);
-            handleInputChange(e);
-          }}
-          onBlur={formik.handleBlur}
-        />
-        <div className='errorFormAdd'>{formik.touched.name && formik.errors.name}</div>
-
-        <input
-          type="text"
-          placeholder="Subject Name"
-          name="Subject4name"
-          value={formik.values.name}
-          onChange={(e) => {
-            formik.handleChange(e);
-            handleInputChange(e);
-          }}
-          onBlur={formik.handleBlur}
-        />
-        <div className='errorFormAdd'>{formik.touched.name && formik.errors.name}</div>
-
-        <input
-          type="text"
-          placeholder="Subject5 Name"
-          name="Subject5name"
-          value={formik.values.name}
-          onChange={(e) => {
-            formik.handleChange(e);
-            handleInputChange(e);
-          }}
-          onBlur={formik.handleBlur}
-        />
-        <div className='errorFormAdd'>{formik.touched.name && formik.errors.name}</div>
-
-        <input
-          type="text"
-          placeholder="Subject6 Name"
-          name="Subject6name"
-          value={formik.values.name}
-          onChange={(e) => {
-            formik.handleChange(e);
-            handleInputChange(e);
-          }}
-          onBlur={formik.handleBlur}
-        />
-        <div className='errorFormAdd'>{formik.touched.name && formik.errors.name}</div>
-
+        {subjects.map((subject, index) => (
+          <div key={index}>
+            <input
+              type="text"
+              placeholder={`Subject ${index + 1} Name`}
+              name={`Subject${index + 1}name`}
+              value={userData[`subject${index + 1}`]}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              disabled={Boolean(subject.name)} // Disable if subject name is not empty
+            />
+            <div className="errorFormAdd">
+              {formik.touched[`Subject${index + 1}name`] &&
+                formik.errors[`Subject${index + 1}name`]}
+            </div>
+          </div>
+        ))}
         <div className="ShopButton">
           <button type="submit">Submit</button>
         </div>
@@ -166,24 +82,42 @@ export default function AttendancePage() {
     branch: "CSE",
     semester: "1st",
     enrollment: "178",
-    subject1: "Subject 1",
+    subject1: "",
     subject1_present: 11,
     subject1_absent: 1,
-    subject2: "Subject 2",
+    subject2: "",
     subject2_present: 15,
     subject2_absent: 5,
-    subject3: "Subject 3",
+    subject3: "",
     subject3_present: 17,
     subject3_absent: 4,
-    subject4: "Subject 4",
+    subject4: "",
     subject4_present: 12,
     subject4_absent: 5,
-    subject5: "Subject 5",
+    subject5: "",
     subject5_present: 19,
     subject5_absent: 8,
-    subject6: "Subject 6",
+    subject6: "",
     subject6_present: 1,
     subject6_absent: 5
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      Subject1name: userData.subject1,
+      Subject2name: userData.subject2,
+      Subject3name: userData.subject3,
+      Subject4name: userData.subject4,
+      Subject5name: userData.subject5,
+      Subject6name: userData.subject6,
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      // Handle form submission here
+      // You can access form values in the 'values' parameter
+      // console.log("Form values submitted:", values);
+      // You can call your updateSubject function or perform other actions here
+    },
   });
 
   const getCallAPI = async () => {
@@ -199,15 +133,33 @@ export default function AttendancePage() {
       setUserData(response.data); // Update the userData state with the response data
 
       console.log(response.data, "this is the data of Response"); // Log the response data
-      console.log(userData, "this is the userData "); // Log the response data
+      // console.log(userData, "this is the userData "); // Log the response data
     } catch (error) {
       console.error(error);
     }
   };
 
   useEffect(() => {
+    console.log(userData, "this is the userData ");
+  }, [userData]);
+
+  useEffect(() => {
     getCallAPI();
   }, []);
+
+  useEffect(() => {
+    // Update the form values when userData changes
+    if (userData) {
+      formik.setValues({
+        Subject1name: userData.subject1,
+        Subject2name: userData.subject2,
+        Subject3name: userData.subject3,
+        Subject4name: userData.subject4,
+        Subject5name: userData.subject5,
+        Subject6name: userData.subject6,
+      });
+    }
+  }, [userData]);
 
   // for put api
   const [subID, setSubID] = useState(" ");
@@ -255,47 +207,109 @@ export default function AttendancePage() {
     }
   };
 
-
   const updateSubject = async (addData) => {
-
-    console.log('Received form userData:', addData);
     try {
+      // Update the subjects array with new subject names
+      const updatedSubjects = subjects.map((subject, index) => ({
+        name: addData[`Subject${index + 1}name`] || subject.name,
+        present: userData[`${subject.value}_present`],
+        absent: userData[`${subject.value}_absent`],
+        value: subject.value,
+      }));
+
+      const updatedUserData = {
+        ...userData,
+        ...Object.fromEntries(
+          updatedSubjects.map((subject) => [
+            subject.value,
+            subject.name,
+          ])
+        ),
+      };
+
+      // Update present and absent counts for new subject names (if any)
+      updatedSubjects.forEach((subject) => {
+        updatedUserData[`${subject.value}_present`] = subject.present;
+        updatedUserData[`${subject.value}_absent`] = subject.absent;
+      });
+
+      setUserData(updatedUserData); // Update the userData state with the new data
+
+      // Make the PUT API call to update the data on the server
       const response = await axios.put(
         'https://collegeeazy-backend-production.up.railway.app/collegeazy/attendance/private/update',
         {
           enrollment: Attentoken.enrollment,
-          branch: userData.branch,
-          semester: userData.semester,
-          subject1: addData.Subject1name,
-          subject1_present: userData.subject1_present,
-          subject1_absent: userData.subject1_absent,
-          subject2: addData.Subject2name,
-          subject2_present: userData.subject2_present,
-          subject2_absent: userData.subject2_absent,
-          subject3: addData.Subject3name,
-          subject3_present: userData.subject3_present,
-          subject3_absent: userData.subject3_absent,
-          subject4: addData.Subject4name,
-          subject4_present: userData.subject4_present,
-          subject4_absent: userData.subject4_absent,
-          subject5: addData.Subject5name,
-          subject5_present: userData.subject5_present,
-          subject5_absent: userData.subject5_absent,
-          subject6: addData.Subject6name,
-          subject6_present: userData.subject6_present,
-          subject6_absent: userData.subject6_absent,
+          branch: updatedUserData.branch,
+          semester: updatedUserData.semester,
+          ...Object.fromEntries(
+            updatedSubjects.map((subject) => [
+              subject.value,
+              subject.name,
+            ])
+          ),
+          ...Object.fromEntries(
+            updatedSubjects.map((subject) => [
+              `${subject.value}_present`,
+              subject.present,
+            ])
+          ),
+          ...Object.fromEntries(
+            updatedSubjects.map((subject) => [
+              `${subject.value}_absent`,
+              subject.absent,
+            ])
+          ),
         },
         {
           headers: {
-            Authorization: `Bearer ${Attentoken.jwt}`
-          }
+            Authorization: `Bearer ${Attentoken.jwt}`,
+          },
         }
       );
-      console.log('Attendance updated successfully:', userData);
+
+      console.log('Attendance updated successfully:', updatedUserData);
+      console.log('API response:', response.data);
     } catch (error) {
       console.error('Failed to update attendance:', error);
     }
   };
+
+
+  // const updateSubject = async (userData) => {
+  //   console.log("Received form userData:", userData);
+  //   try {
+  //     // Update the subjects array with new subject names
+  //     const updatedSubjects = subjects.map((subject, index) => ({
+  //       name: userData[`Subject${index + 1}name`] || subject.name,
+  //     }));
+
+  //     const response = await axios.put(
+  //       "https://collegeeazy-backend-production.up.railway.app/collegeazy/attendance/private/update",
+  //       {
+  //         enrollment: Attentoken.enrollment,
+  //         branch: userData.branch,
+  //         semester: userData.semester,
+  //         ...Object.fromEntries(
+  //           updatedSubjects.map((subject, index) => [
+  //             `subject${index + 1}`,
+  //             subject.name,
+  //           ])
+  //         ),
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${Attentoken.jwt}`,
+  //         },
+  //       }
+  //     );
+
+  //     console.log("Attendance updated successfully:", userData);
+  //   } catch (error) {
+  //     console.error("Failed to update attendance:", error);
+  //   }
+  // };
+
 
   const [sub, setSubject] = useState("All Subjects");
   const [val, setVal] = useState(0);
@@ -345,29 +359,31 @@ export default function AttendancePage() {
     selectedSubject === null
       ? Math.trunc((totalPresents / (totalPresents + totalAbsents)) * 100)
       : inc + dec === 0
-      ? 0
-      : Math.trunc((userData[`${selectedSubject}_present`] / (userData[`${selectedSubject}_present`] + userData[`${selectedSubject}_absent`])) * 100);
+        ? 0
+        : Math.trunc((userData[`${selectedSubject}_present`] / (userData[`${selectedSubject}_present`] + userData[`${selectedSubject}_absent`])) * 100);
 
   const SubjectButtons = () => {
     return (
       <div className="attenSubButton">
         {subjects.map((subject, index) => (
-          <button
-            className="btnn"
-            key={index}
-            onClick={() => {
-              setInc(subject.present);
-              setdec(subject.absent);
-              setSubject(subject.name);
-              setVal(subject.value);
-              setSubID(subject.value);
-              setIsSubjectSelected(true); // Set to true when a subject is clicked
-              setSelectedSubject(subject.value);
-              console.log("This subject is", subject.name);
-            }}
-          >
-            {subject.name}
-          </button>
+          subject.name ? (
+            <button
+              className="btnn"
+              key={index}
+              onClick={() => {
+                setInc(subject.present);
+                setdec(subject.absent);
+                setSubject(subject.name);
+                setVal(subject.value);
+                setSubID(subject.value);
+                setIsSubjectSelected(true); // Set to true when a subject is clicked
+                setSelectedSubject(subject.value);
+                console.log("This subject is", subject.name);
+              }}
+            >
+              {subject.name}
+            </button>
+          ) : null
         ))}
       </div>
     );
@@ -443,7 +459,7 @@ export default function AttendancePage() {
                     X
                   </label>
                   <div className="formAdd">
-                    <FormComponent onSubmit={updateSubject} />
+                    <FormComponent subjects={subjects} userData={userData} onSubmit={updateSubject} />
                   </div>
                 </div>
               </div>
